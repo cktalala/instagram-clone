@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import Sidebar from "@/components/Sidebar";
+import QueryProvider from "@/components/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,14 +34,18 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <AntdRegistry>
-          <div style={{ display: "flex" }}>
-            <Sidebar />
-            <main style={{ marginLeft: "245px", flex: 1, minHeight: "100vh" }}>
-              {children}
-            </main>
-          </div>
-        </AntdRegistry>
+        <QueryProvider>
+          <AntdRegistry>
+            <div style={{ display: "flex" }}>
+              <Sidebar />
+              <main
+                style={{ marginLeft: "245px", flex: 1, minHeight: "100vh" }}
+              >
+                {children}
+              </main>
+            </div>
+          </AntdRegistry>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   Home,
   Search,
@@ -9,11 +8,91 @@ import {
   MessageCircle,
   Heart,
   PlusSquare,
-  User,
   Menu,
   Instagram,
 } from "lucide-react";
 import styled from "styled-components";
+import Image from "next/image";
+
+interface SidebarProps {
+  activeItem?: string;
+  onItemClick?: (item: string) => void;
+}
+
+const Sidebar = ({ activeItem = "home", onItemClick }: SidebarProps) => {
+  const handleItemClick = (item: string) => {
+    if (onItemClick) {
+      onItemClick(item);
+    }
+  };
+
+  const navItems = [
+    { id: "home", icon: Home, label: "Home" },
+    { id: "search", icon: Search, label: "Search" },
+    { id: "explore", icon: Compass, label: "Explore" },
+    { id: "reels", icon: Video, label: "Reels" },
+    { id: "messages", icon: MessageCircle, label: "Messages" },
+    { id: "notifications", icon: Heart, label: "Notifications" },
+    { id: "create", icon: PlusSquare, label: "Create" },
+  ];
+
+  return (
+    <SidebarContainer>
+      <Logo>
+        <h1>Instagram</h1>
+      </Logo>
+
+      <NavList>
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavItem
+              key={item.id}
+              $isActive={activeItem === item.id}
+              onClick={() => handleItemClick(item.id)}
+            >
+              <IconWrapper>
+                <Icon />
+              </IconWrapper>
+              <NavText $isActive={activeItem === item.id}>{item.label}</NavText>
+            </NavItem>
+          );
+        })}
+
+        <NavItem
+          $isActive={activeItem === "profile"}
+          onClick={() => handleItemClick("profile")}
+        >
+          <ProfilePicture>
+            <Image
+              src="/images/profile.png"
+              alt="Profile"
+              width={22}
+              height={22}
+            />
+          </ProfilePicture>
+          <NavText>Profile</NavText>
+        </NavItem>
+      </NavList>
+
+      <BottomSection>
+        <NavItem onClick={() => handleItemClick("more")}>
+          <IconWrapper>
+            <Menu />
+          </IconWrapper>
+          <NavText>More</NavText>
+        </NavItem>
+
+        <MetaLogo>
+          <Instagram size={16} />
+          <span>Also from Meta</span>
+        </MetaLogo>
+      </BottomSection>
+    </SidebarContainer>
+  );
+};
+
+export default Sidebar;
 
 const SidebarContainer = styled.div`
   width: 245px;
@@ -78,9 +157,9 @@ const IconWrapper = styled.div`
   }
 `;
 
-const NavText = styled.span`
+const NavText = styled.span<{ $isActive?: boolean }>`
   font-size: 16px;
-  font-weight: 400;
+  font-weight: ${(props) => (props.$isActive ? "600" : "400")};
   color: #000;
 `;
 
@@ -126,81 +205,3 @@ const MetaLogo = styled.div`
     margin-right: 8px;
   }
 `;
-
-interface SidebarProps {
-  activeItem?: string;
-  onItemClick?: (item: string) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({
-  activeItem = "home",
-  onItemClick,
-}) => {
-  const handleItemClick = (item: string) => {
-    if (onItemClick) {
-      onItemClick(item);
-    }
-  };
-
-  const navItems = [
-    { id: "home", icon: Home, label: "Home" },
-    { id: "search", icon: Search, label: "Search" },
-    { id: "explore", icon: Compass, label: "Explore" },
-    { id: "reels", icon: Video, label: "Reels" },
-    { id: "messages", icon: MessageCircle, label: "Messages" },
-    { id: "notifications", icon: Heart, label: "Notifications" },
-    { id: "create", icon: PlusSquare, label: "Create" },
-  ];
-
-  return (
-    <SidebarContainer>
-      <Logo>
-        <h1>Instagram</h1>
-      </Logo>
-
-      <NavList>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavItem
-              key={item.id}
-              $isActive={activeItem === item.id}
-              onClick={() => handleItemClick(item.id)}
-            >
-              <IconWrapper>
-                <Icon />
-              </IconWrapper>
-              <NavText>{item.label}</NavText>
-            </NavItem>
-          );
-        })}
-
-        <NavItem
-          $isActive={activeItem === "profile"}
-          onClick={() => handleItemClick("profile")}
-        >
-          <ProfilePicture>
-            <User size={16} color="white" />
-          </ProfilePicture>
-          <NavText>Profile</NavText>
-        </NavItem>
-      </NavList>
-
-      <BottomSection>
-        <NavItem onClick={() => handleItemClick("more")}>
-          <IconWrapper>
-            <Menu />
-          </IconWrapper>
-          <NavText>More</NavText>
-        </NavItem>
-
-        <MetaLogo>
-          <Instagram size={16} />
-          <span>Also from Meta</span>
-        </MetaLogo>
-      </BottomSection>
-    </SidebarContainer>
-  );
-};
-
-export default Sidebar;
