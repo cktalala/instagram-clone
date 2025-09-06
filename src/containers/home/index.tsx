@@ -1,5 +1,6 @@
 "use client";
 
+import PostCard from "@/components/PostCard";
 import StorySection from "@/components/StorySection";
 import { pokemonService } from "@/services/pokrmon";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -14,7 +15,7 @@ const HomeContainer = () => {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["pokemons"],
-    queryFn: ({ pageParam = 0 }) => pokemonService.getPokemons(pageParam, 20),
+    queryFn: ({ pageParam = 0 }) => pokemonService.getPokemons(pageParam, 10),
     getNextPageParam: (lastPage) => {
       if (lastPage.next) {
         const url = new URL(lastPage.next);
@@ -32,6 +33,13 @@ const HomeContainer = () => {
           pokemonsData={pokemonsData}
           fetchNextPage={fetchNextPage}
           hasNextPage={!!hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+        />
+
+        <PostCard
+          pokemonsData={pokemonsData}
+          fetchNextPage={fetchNextPage}
+          hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
         />
       </FeedContainer>

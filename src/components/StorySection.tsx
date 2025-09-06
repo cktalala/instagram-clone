@@ -3,7 +3,8 @@
 import { PokemonApiResponse } from "@/services/pokrmon";
 import { getPokemonSpriteUrl } from "@/utils";
 import { InfiniteData } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 interface StorySectionProps {
@@ -20,7 +21,18 @@ const StorySection = ({
   isFetchingNextPage,
 }: StorySectionProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showLeftChevron, setShowLeftChevron] = useState(false);
+  const [showRightChevron, setShowRightChevron] = useState(true);
   const allPokemons = pokemonsData?.pages.flatMap((page) => page.results) || [];
+
+  const updateChevronVisibility = () => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    setShowLeftChevron(scrollLeft > 0);
+    setShowRightChevron(scrollLeft < scrollWidth - clientWidth - 10);
+  };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -30,17 +42,41 @@ const StorySection = ({
       const { scrollLeft, scrollWidth, clientWidth } = container;
       const isNearEnd = scrollLeft + clientWidth >= scrollWidth - 100;
 
+      updateChevronVisibility();
+
       if (isNearEnd && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
     };
 
     container.addEventListener("scroll", handleScroll);
+    updateChevronVisibility();
+
     return () => container.removeEventListener("scroll", handleScroll);
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, allPokemons]);
+
+  const scrollLeft = () => {
+    const container = containerRef.current;
+    if (container) {
+      container.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    const container = containerRef.current;
+    if (container) {
+      container.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
 
   return (
-    <div>
+    <StoryWrapper>
+      {showLeftChevron && (
+        <ChevronButton $position="left" onClick={scrollLeft}>
+          <ChevronLeft size={24} />
+        </ChevronButton>
+      )}
+
       <StoryContainer ref={containerRef}>
         {allPokemons.map((story, index) => (
           <StoryItem key={`${story.name}-${index}`}>
@@ -49,20 +85,60 @@ const StorySection = ({
           </StoryItem>
         ))}
       </StoryContainer>
-    </div>
+
+      {showRightChevron && (
+        <ChevronButton $position="right" onClick={scrollRight}>
+          <ChevronRight size={24} />
+        </ChevronButton>
+      )}
+    </StoryWrapper>
   );
 };
 
 export default StorySection;
 
-const StoryContainer = styled.div`
+const StoryWrapper = styled.div`
+  position: relative;
   background: white;
+`;
+
+const StoryContainer = styled.div`
   display: flex;
   gap: 14px;
   overflow-x: auto;
+  scroll-behavior: smooth;
 
   &::-webkit-scrollbar {
     display: none;
+  }
+`;
+
+const ChevronButton = styled.button<{ $position: "left" | "right" }>`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  ${(props) => (props.$position === "left" ? "left: 8px;" : "right: 8px;")}
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
   }
 `;
 
