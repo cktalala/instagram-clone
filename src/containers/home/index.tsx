@@ -2,6 +2,7 @@
 
 import PostCard from "@/components/PostCard";
 import StorySection from "@/components/StorySection";
+import UserSection from "@/components/UserSection";
 import { pokemonService } from "@/services/pokrmon";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import React from "react";
@@ -43,7 +44,7 @@ const HomeContainer = () => {
           isFetchingNextPage={isFetchingNextPage}
         />
       </FeedContainer>
-      <div>fff</div>
+      <UserSection pokemonsData={pokemonsData} />
     </Container>
   );
 };
