@@ -1,6 +1,7 @@
 "use client";
 
 import { PokemonApiResponse } from "@/services/pokrmon";
+import { usePokemonStore } from "@/store/pokemon";
 import { getPokemonSpriteUrl } from "@/utils";
 import { InfiniteData } from "@tanstack/react-query";
 import { Bookmark, Heart, MessageCircle, Send } from "lucide-react";
@@ -24,9 +25,20 @@ const PostCard = ({
   const allPokemons = pokemonsData?.pages.flatMap((page) => page.results) || [];
   const [clickedImage, setClickedImage] = useState<string | null>(null);
 
+  const { toggleLike, toggleBookmark, isLiked, isBookmarked } =
+    usePokemonStore();
+
   const handleImageClick = (pokemonName: string) => {
     setClickedImage(pokemonName);
     setTimeout(() => setClickedImage(null), 200);
+  };
+
+  const handleLikeClick = (pokemonName: string) => {
+    toggleLike(pokemonName);
+  };
+
+  const handleBookmarkClick = (pokemonName: string) => {
+    toggleBookmark(pokemonName);
   };
 
   useEffect(() => {
@@ -64,8 +76,12 @@ const PostCard = ({
           </PostImage>
           <PostActions>
             <PostActionSection>
-              <ActionButton>
-                <Heart size={24} />
+              <ActionButton onClick={() => handleLikeClick(pokemon.name)}>
+                <Heart
+                  size={24}
+                  fill={isLiked(pokemon.name) ? "#ed4956" : "none"}
+                  color={isLiked(pokemon.name) ? "#ed4956" : "#262626"}
+                />
               </ActionButton>
               <ActionButton>
                 <MessageCircle size={24} />
@@ -74,8 +90,12 @@ const PostCard = ({
                 <Send size={24} />
               </ActionButton>
             </PostActionSection>
-            <ActionButton>
-              <Bookmark size={24} />
+            <ActionButton onClick={() => handleBookmarkClick(pokemon.name)}>
+              <Bookmark
+                size={24}
+                fill={isBookmarked(pokemon.name) ? "#262626" : "none"}
+                color="#262626"
+              />
             </ActionButton>
           </PostActions>
           <PostCaption>
@@ -193,9 +213,14 @@ const ActionButton = styled.button`
   cursor: pointer;
   padding: 0;
   color: #262626;
+  transition: transform 0.1s ease;
 
   &:hover {
     opacity: 0.7;
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
