@@ -17,9 +17,14 @@ import Image from "next/image";
 interface SidebarProps {
   activeItem?: string;
   onItemClick?: (item: string) => void;
+  isCollapsed?: boolean;
 }
 
-const Sidebar = ({ activeItem = "home", onItemClick }: SidebarProps) => {
+const Sidebar = ({
+  activeItem = "home",
+  onItemClick,
+  isCollapsed = false,
+}: SidebarProps) => {
   const handleItemClick = (item: string) => {
     if (onItemClick) {
       onItemClick(item);
@@ -37,9 +42,9 @@ const Sidebar = ({ activeItem = "home", onItemClick }: SidebarProps) => {
   ];
 
   return (
-    <SidebarContainer>
-      <Logo>
-        <h1>Instagram</h1>
+    <SidebarContainer $isCollapsed={isCollapsed}>
+      <Logo $isCollapsed={isCollapsed}>
+        {isCollapsed ? <Instagram size={24} /> : <h1>Instagram</h1>}
       </Logo>
 
       <NavList>
@@ -49,21 +54,27 @@ const Sidebar = ({ activeItem = "home", onItemClick }: SidebarProps) => {
             <NavItem
               key={item.id}
               $isActive={activeItem === item.id}
+              $isCollapsed={isCollapsed}
               onClick={() => handleItemClick(item.id)}
             >
-              <IconWrapper>
+              <IconWrapper $isCollapsed={isCollapsed}>
                 <Icon />
               </IconWrapper>
-              <NavText $isActive={activeItem === item.id}>{item.label}</NavText>
+              {!isCollapsed && (
+                <NavText $isActive={activeItem === item.id}>
+                  {item.label}
+                </NavText>
+              )}
             </NavItem>
           );
         })}
 
         <NavItem
           $isActive={activeItem === "profile"}
+          $isCollapsed={isCollapsed}
           onClick={() => handleItemClick("profile")}
         >
-          <ProfilePicture>
+          <ProfilePicture $isCollapsed={isCollapsed}>
             <Image
               src="/images/profile.png"
               alt="Profile"
@@ -71,22 +82,27 @@ const Sidebar = ({ activeItem = "home", onItemClick }: SidebarProps) => {
               height={22}
             />
           </ProfilePicture>
-          <NavText>Profile</NavText>
+          {!isCollapsed && <NavText>Profile</NavText>}
         </NavItem>
       </NavList>
 
       <BottomSection>
-        <NavItem onClick={() => handleItemClick("more")}>
+        <NavItem
+          $isCollapsed={isCollapsed}
+          onClick={() => handleItemClick("more")}
+        >
           <IconWrapper>
             <Menu />
           </IconWrapper>
-          <NavText>More</NavText>
+          {!isCollapsed && <NavText>More</NavText>}
         </NavItem>
 
-        <MetaLogo>
-          <Instagram size={16} />
-          <span>Also from Meta</span>
-        </MetaLogo>
+        {!isCollapsed && (
+          <MetaLogo>
+            <Instagram size={16} />
+            <span>Also from Meta</span>
+          </MetaLogo>
+        )}
       </BottomSection>
     </SidebarContainer>
   );
@@ -94,23 +110,28 @@ const Sidebar = ({ activeItem = "home", onItemClick }: SidebarProps) => {
 
 export default Sidebar;
 
-const SidebarContainer = styled.div`
-  width: 245px;
+const SidebarContainer = styled.div<{ $isCollapsed: boolean }>`
+  width: ${(props) => (props.$isCollapsed ? "73px" : "245px")};
   height: 100vh;
   background: white;
   border-right: 1px solid #dbdbdb;
   position: fixed;
   left: 0;
   top: 0;
-  padding: 12px 12px 20px 12px;
+  padding: ${(props) =>
+    props.$isCollapsed ? "12px 8px 20px 8px" : "12px 12px 20px 12px"};
   display: flex;
   flex-direction: column;
   z-index: 100;
+  transition: width 0.3s ease;
 `;
 
-const Logo = styled.div`
-  padding: 25px 12px 16px 12px;
+const Logo = styled.div<{ $isCollapsed: boolean }>`
+  padding: ${(props) =>
+    props.$isCollapsed ? "25px 12px 16px 12px" : "25px 12px 16px 12px"};
   margin-bottom: 19px;
+  display: flex;
+  justify-content: ${(props) => (props.$isCollapsed ? "center" : "flex-start")};
 
   h1 {
     font-family: "Lobster Two", cursive;
@@ -125,14 +146,15 @@ const NavList = styled.nav`
   flex: 1;
 `;
 
-const NavItem = styled.div<{ $isActive?: boolean }>`
+const NavItem = styled.div<{ $isActive?: boolean; $isCollapsed?: boolean }>`
   display: flex;
   align-items: center;
-  padding: 12px;
+  padding: ${(props) => (props.$isCollapsed ? "12px 8px" : "12px")};
   margin-bottom: 4px;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  justify-content: ${(props) => (props.$isCollapsed ? "center" : "flex-start")};
 
   &:hover {
     background-color: #f2f2f2;
@@ -145,8 +167,8 @@ const NavItem = styled.div<{ $isActive?: boolean }>`
   `}
 `;
 
-const IconWrapper = styled.div`
-  margin-right: 16px;
+const IconWrapper = styled.div<{ $isCollapsed?: boolean }>`
+  margin-right: ${(props) => (props.$isCollapsed ? "0px" : "16px")};
   display: flex;
   align-items: center;
 
@@ -163,7 +185,7 @@ const NavText = styled.span<{ $isActive?: boolean }>`
   color: #000;
 `;
 
-const ProfilePicture = styled.div`
+const ProfilePicture = styled.div<{ $isCollapsed?: boolean }>`
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -175,7 +197,7 @@ const ProfilePicture = styled.div`
     #cc2366 75%,
     #bc1888 100%
   );
-  margin-right: 16px;
+  margin-right: ${(props) => (props.$isCollapsed ? "0px" : "16px")};
   display: flex;
   align-items: center;
   justify-content: center;
