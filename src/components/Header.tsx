@@ -2,7 +2,8 @@
 
 import { Search, Heart, Instagram } from "lucide-react";
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import SearchDropdown from "./SearchDropdown";
 
 interface HeaderProps {
   onSearchFocus?: () => void;
@@ -16,9 +17,27 @@ const Header = ({ onSearchFocus, onSearchBlur }: HeaderProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setShowSearchDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   useIsomorphicLayoutEffect(() => {
@@ -34,11 +53,17 @@ const Header = ({ onSearchFocus, onSearchBlur }: HeaderProps) => {
   }, [isClient]);
 
   const handleSearchFocus = () => {
+    setShowSearchDropdown(true);
     if (onSearchFocus) onSearchFocus();
   };
 
   const handleSearchBlur = () => {
+    // Don't immediately hide dropdown on blur, let click outside handle it
     if (onSearchBlur) onSearchBlur();
+  };
+
+  const handleCloseDropdown = () => {
+    setShowSearchDropdown(false);
   };
 
   return (
@@ -49,7 +74,7 @@ const Header = ({ onSearchFocus, onSearchBlur }: HeaderProps) => {
         </LogoSection>
         <SearchSectionContainer>
           <SearchSection $isMobile={isMobile}>
-            <SearchContainer>
+            <SearchContainer ref={searchContainerRef}>
               <SearchIcon>
                 <Search size={16} />
               </SearchIcon>
@@ -60,6 +85,11 @@ const Header = ({ onSearchFocus, onSearchBlur }: HeaderProps) => {
                 onChange={(e) => setSearchValue(e.target.value)}
                 onFocus={handleSearchFocus}
                 onBlur={handleSearchBlur}
+              />
+              <SearchDropdown
+                isVisible={showSearchDropdown}
+                searchValue={searchValue}
+                onClose={handleCloseDropdown}
               />
             </SearchContainer>
           </SearchSection>

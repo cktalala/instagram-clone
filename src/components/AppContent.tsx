@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
-import SearchComponent from "@/components/SearchComponent";
 import Header from "@/components/Header";
 import styled from "styled-components";
 
@@ -10,7 +9,6 @@ interface AppContentProps {
   children: React.ReactNode;
 }
 
-// Hook to prevent hydration mismatches
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useEffect : () => {};
 
@@ -42,13 +40,12 @@ const AppContent = ({ children }: AppContentProps) => {
   };
 
   const getMainContentMargin = () => {
-    if (isMobile) return "0"; // No left margin on mobile, sidebar is at bottom
-    if (isTablet || activeItem === "search") return "73px"; // Collapsed sidebar width
-    return "245px"; // Full sidebar width
+    if (isMobile) return "0";
+    if (isTablet || activeItem === "search") return "73px";
+    return "245px";
   };
 
   const handleHeaderSearchFocus = () => {
-    // When search is focused in header, switch to search mode
     setActiveItem("search");
   };
 
@@ -63,7 +60,6 @@ const AppContent = ({ children }: AppContentProps) => {
               onItemClick={handleNavigation}
               isCollapsed={true}
             />
-            <SearchComponent />
             <MainContent
               $marginLeft={getMainContentMargin()}
               $isMobile={isMobile}
