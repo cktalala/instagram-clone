@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import styled from "styled-components";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface SidebarProps {
   activeItem?: string;
@@ -20,11 +21,35 @@ interface SidebarProps {
   isCollapsed?: boolean;
 }
 
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useEffect : () => {};
+
 const Sidebar = ({
   activeItem = "home",
   onItemClick,
   isCollapsed = false,
 }: SidebarProps) => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!isClient) return;
+
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1264);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, [isClient]);
+
   const handleItemClick = (item: string) => {
     if (onItemClick) {
       onItemClick(item);
@@ -41,10 +66,46 @@ const Sidebar = ({
     { id: "create", icon: PlusSquare, label: "Create" },
   ];
 
+  if (isMobile) {
+    return (
+      <MobileNavContainer>
+        <MobileNavList>
+          {navItems.slice(0, 4).map((item) => {
+            const Icon = item.icon;
+            return (
+              <MobileNavItem
+                key={item.id}
+                $isActive={activeItem === item.id}
+                onClick={() => handleItemClick(item.id)}
+              >
+                <Icon />
+              </MobileNavItem>
+            );
+          })}
+          <MobileNavItem
+            $isActive={activeItem === "profile"}
+            onClick={() => handleItemClick("profile")}
+          >
+            <MobileProfilePicture>
+              <Image
+                src="/images/profile.png"
+                alt="Profile"
+                width={24}
+                height={24}
+              />
+            </MobileProfilePicture>
+          </MobileNavItem>
+        </MobileNavList>
+      </MobileNavContainer>
+    );
+  }
+
+  const shouldBeCollapsed = isTablet || isCollapsed;
+
   return (
-    <SidebarContainer $isCollapsed={isCollapsed}>
-      <Logo $isCollapsed={isCollapsed}>
-        {isCollapsed ? <Instagram size={24} /> : <h1>Instagram</h1>}
+    <SidebarContainer $isCollapsed={shouldBeCollapsed} $isMobile={isMobile}>
+      <Logo $isCollapsed={shouldBeCollapsed}>
+        {shouldBeCollapsed ? <Instagram size={24} /> : <h1>Instagram</h1>}
       </Logo>
 
       <NavList>
@@ -54,13 +115,13 @@ const Sidebar = ({
             <NavItem
               key={item.id}
               $isActive={activeItem === item.id}
-              $isCollapsed={isCollapsed}
+              $isCollapsed={shouldBeCollapsed}
               onClick={() => handleItemClick(item.id)}
             >
-              <IconWrapper $isCollapsed={isCollapsed}>
+              <IconWrapper $isCollapsed={shouldBeCollapsed}>
                 <Icon />
               </IconWrapper>
-              {!isCollapsed && (
+              {!shouldBeCollapsed && (
                 <NavText $isActive={activeItem === item.id}>
                   {item.label}
                 </NavText>
@@ -71,10 +132,10 @@ const Sidebar = ({
 
         <NavItem
           $isActive={activeItem === "profile"}
-          $isCollapsed={isCollapsed}
+          $isCollapsed={shouldBeCollapsed}
           onClick={() => handleItemClick("profile")}
         >
-          <ProfilePicture $isCollapsed={isCollapsed}>
+          <ProfilePicture $isCollapsed={shouldBeCollapsed}>
             <Image
               src="/images/profile.png"
               alt="Profile"
@@ -82,22 +143,22 @@ const Sidebar = ({
               height={22}
             />
           </ProfilePicture>
-          {!isCollapsed && <NavText>Profile</NavText>}
+          {!shouldBeCollapsed && <NavText>Profile</NavText>}
         </NavItem>
       </NavList>
 
       <BottomSection>
         <NavItem
-          $isCollapsed={isCollapsed}
+          $isCollapsed={shouldBeCollapsed}
           onClick={() => handleItemClick("more")}
         >
           <IconWrapper>
             <Menu />
           </IconWrapper>
-          {!isCollapsed && <NavText>More</NavText>}
+          {!shouldBeCollapsed && <NavText>More</NavText>}
         </NavItem>
 
-        {!isCollapsed && (
+        {!shouldBeCollapsed && (
           <MetaLogo>
             <Instagram size={16} />
             <span>Also from Meta</span>
@@ -110,7 +171,10 @@ const Sidebar = ({
 
 export default Sidebar;
 
-const SidebarContainer = styled.div<{ $isCollapsed: boolean }>`
+const SidebarContainer = styled.div<{
+  $isCollapsed: boolean;
+  $isMobile: boolean;
+}>`
   width: ${(props) => (props.$isCollapsed ? "73px" : "245px")};
   height: 100vh;
   background: white;
@@ -124,6 +188,84 @@ const SidebarContainer = styled.div<{ $isCollapsed: boolean }>`
   flex-direction: column;
   z-index: 100;
   transition: width 0.3s ease;
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+`;
+
+const MobileNavContainer = styled.div`
+  display: none;
+
+  @media (max-width: 767px) {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #dbdbdb;
+    z-index: 100;
+    height: 60px;
+  }
+`;
+
+const MobileNavList = styled.div`
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  padding: 0 16px;
+`;
+
+const MobileNavItem = styled.div<{ $isActive?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f2f2f2;
+  }
+
+  ${(props) =>
+    props.$isActive &&
+    `
+    background-color: #f2f2f2;
+  `}
+
+  svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: ${(props) => (props.$isActive ? "2" : "1.5")};
+  }
+`;
+
+const MobileProfilePicture = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(
+    45deg,
+    #f09433 0%,
+    #e6683c 25%,
+    #dc2743 50%,
+    #cc2366 75%,
+    #bc1888 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
 `;
 
 const Logo = styled.div<{ $isCollapsed: boolean }>`

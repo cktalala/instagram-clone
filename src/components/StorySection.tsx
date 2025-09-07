@@ -100,6 +100,8 @@ export default StorySection;
 const StoryWrapper = styled.div`
   position: relative;
   background: white;
+  width: 100%;
+  max-width: 100vw;
 `;
 
 const StoryContainer = styled.div`
@@ -107,6 +109,9 @@ const StoryContainer = styled.div`
   gap: 14px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
 
   &::-webkit-scrollbar {
     display: none;
@@ -148,6 +153,8 @@ const StoryItem = styled.div`
   align-items: center;
   min-width: 100px;
   cursor: pointer;
+  flex-shrink: 0;
+  width: auto;
 `;
 
 const StoryAvatar = styled.div<{ $imageUrl: string }>`

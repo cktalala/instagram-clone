@@ -57,6 +57,14 @@ const Container = styled.div`
   min-height: 100vh;
   padding: 24px;
   grid-template-columns: 2fr 1fr;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px 0px;
+  }
 `;
 
 const FeedContainer = styled.div`

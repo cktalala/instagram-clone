@@ -122,6 +122,11 @@ const Card = styled.div`
   overflow: hidden;
   max-width: 480px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    margin: 0;
+  }
 `;
 
 const PostHeader = styled.div`
@@ -200,6 +205,10 @@ const PostActions = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+  }
 `;
 
 const PostActionSection = styled.div`

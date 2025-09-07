@@ -111,6 +111,9 @@ export default UserSection;
 const Container = styled.div`
   background: white;
   max-width: 80%;
+  @media (max-width: 1160px) {
+    display: none;
+  }
 `;
 
 const ImageProfile = styled(Image)`
