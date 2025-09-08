@@ -202,25 +202,6 @@ npm run lint        # Run ESLint
 - Bottom navigation for easy thumb access
 - Responsive image handling
 
-### ♾️ Performance
-
-- Infinite scroll with efficient data loading
-- Image optimization with Next.js
-- Lazy loading for better performance
-- Efficient re-renders with React optimization
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 🙏 Acknowledgments
 
 - **[Instagram](https://instagram.com)** - UI/UX inspiration
@@ -231,3 +212,4 @@ This project is open source and available under the [MIT License](LICENSE).
 ---
 
 Built with ❤️ using modern web technologies
+Thank you for watching my repository. ❤️❤️❤️
