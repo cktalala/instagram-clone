@@ -14,6 +14,7 @@ import {
 import styled from "styled-components";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import SearchComponent from "./SearchComponent";
 
 interface SidebarProps {
   activeItem?: string;
@@ -32,6 +33,7 @@ const Sidebar = ({
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -51,6 +53,12 @@ const Sidebar = ({
   }, [isClient]);
 
   const handleItemClick = (item: string) => {
+    if (item === "search" && !isMobile) {
+      setShowSearch(!showSearch);
+    } else {
+      setShowSearch(false);
+    }
+
     if (onItemClick) {
       onItemClick(item);
     }
@@ -100,76 +108,78 @@ const Sidebar = ({
     );
   }
 
-  const shouldBeCollapsed = isTablet || isCollapsed;
+  const shouldBeCollapsed = isTablet || isCollapsed || showSearch;
 
   return (
-    <SidebarContainer $isCollapsed={shouldBeCollapsed} $isMobile={isMobile}>
-      <Logo $isCollapsed={shouldBeCollapsed}>
-        {shouldBeCollapsed ? <Instagram size={24} /> : <h1>Instagram</h1>}
-      </Logo>
+    <>
+      <SidebarContainer $isCollapsed={shouldBeCollapsed} $isMobile={isMobile}>
+        <Logo $isCollapsed={shouldBeCollapsed}>
+          {shouldBeCollapsed ? <Instagram size={24} /> : <h1>Instagram</h1>}
+        </Logo>
 
-      <NavList>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavItem
-              key={item.id}
-              $isActive={activeItem === item.id}
-              $isCollapsed={shouldBeCollapsed}
-              onClick={() => handleItemClick(item.id)}
-            >
-              <IconWrapper $isCollapsed={shouldBeCollapsed}>
-                <Icon />
-              </IconWrapper>
-              {!shouldBeCollapsed && (
-                <NavText $isActive={activeItem === item.id}>
-                  {item.label}
-                </NavText>
-              )}
-            </NavItem>
-          );
-        })}
+        <NavList>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavItem
+                key={item.id}
+                $isActive={activeItem === item.id}
+                $isCollapsed={shouldBeCollapsed}
+                onClick={() => handleItemClick(item.id)}
+              >
+                <IconWrapper $isCollapsed={shouldBeCollapsed}>
+                  <Icon />
+                </IconWrapper>
+                {!shouldBeCollapsed && (
+                  <NavText $isActive={activeItem === item.id}>
+                    {item.label}
+                  </NavText>
+                )}
+              </NavItem>
+            );
+          })}
 
-        <NavItem
-          $isActive={activeItem === "profile"}
-          $isCollapsed={shouldBeCollapsed}
-          onClick={() => handleItemClick("profile")}
-        >
-          <ProfilePicture $isCollapsed={shouldBeCollapsed}>
-            <Image
-              src="/images/profile.png"
-              alt="Profile"
-              width={22}
-              height={22}
-            />
-          </ProfilePicture>
-          {!shouldBeCollapsed && <NavText>Profile</NavText>}
-        </NavItem>
-      </NavList>
+          <NavItem
+            $isActive={activeItem === "profile"}
+            $isCollapsed={shouldBeCollapsed}
+            onClick={() => handleItemClick("profile")}
+          >
+            <ProfilePicture $isCollapsed={shouldBeCollapsed}>
+              <Image
+                src="/images/profile.png"
+                alt="Profile"
+                width={22}
+                height={22}
+              />
+            </ProfilePicture>
+            {!shouldBeCollapsed && <NavText>Profile</NavText>}
+          </NavItem>
+        </NavList>
 
-      <BottomSection>
-        <NavItem
-          $isCollapsed={shouldBeCollapsed}
-          onClick={() => handleItemClick("more")}
-        >
-          <IconWrapper>
-            <Menu />
-          </IconWrapper>
-          {!shouldBeCollapsed && <NavText>More</NavText>}
-        </NavItem>
+        <BottomSection>
+          <NavItem
+            $isCollapsed={shouldBeCollapsed}
+            onClick={() => handleItemClick("more")}
+          >
+            <IconWrapper>
+              <Menu />
+            </IconWrapper>
+            {!shouldBeCollapsed && <NavText>More</NavText>}
+          </NavItem>
 
-        {!shouldBeCollapsed && (
-          <MetaLogo>
-            <Instagram size={16} />
-            <span>Also from Meta</span>
-          </MetaLogo>
-        )}
-      </BottomSection>
-    </SidebarContainer>
+          {!shouldBeCollapsed && (
+            <MetaLogo>
+              <Instagram size={16} />
+              <span>Also from Meta</span>
+            </MetaLogo>
+          )}
+        </BottomSection>
+      </SidebarContainer>
+
+      {showSearch && <SearchComponent />}
+    </>
   );
 };
-
-export default Sidebar;
 
 const SidebarContainer = styled.div<{
   $isCollapsed: boolean;
@@ -369,3 +379,5 @@ const MetaLogo = styled.div`
     margin-right: 8px;
   }
 `;
+
+export default Sidebar;
